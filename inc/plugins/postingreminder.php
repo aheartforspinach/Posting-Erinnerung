@@ -196,7 +196,7 @@ function postingreminder_notifications()
                 $characterOpenScenes .= $lang->postingreminder_noOpenScenes;
             }
             eval("\$characterOpenScenes .= \"" . $templates->get("postingreminderCharacters") . "\";");
-            eval("\$header_postingreminder .= \"" . $templates->get("postingreminderHeader") . "\";");
+            eval("\$header_postingreminder = \"" . $templates->get("postingreminderHeader") . "\";");
         }
     }  
 
