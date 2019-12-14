@@ -79,7 +79,7 @@ class postingreminderHandler {
 
         $scenes = $db->simple_select('threads t join ' . TABLE_PREFIX . 'forums f on f.fid = t.fid', 't.tid, t.partners,t.lastposteruid, t.lastpost', "find_in_set($inplayID, f.parentlist)", array("order_by" => "lastpost","order_dir" => 'ASC'));
         while($scene = $db->fetch_array($scenes)){
-            if($date->getTimestamp() > $scene['lastpost']){++;
+            if($date->getTimestamp() > $scene['lastpost']){
                 $returnArray[$scene['tid']] = getNextInRow(explode(',', $scene['partners']), $scene['lastposteruid']);
             }
         }
@@ -88,7 +88,7 @@ class postingreminderHandler {
     }
 }
 
-    /**
+ /**
      *
      * @return int with uid form user who must post next
      */
