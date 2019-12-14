@@ -76,7 +76,7 @@ class postingreminderHandler {
         $date = new DateTime(date("Y-m-d", time())); //heute
         date_sub($date, date_interval_create_from_date_string($dayDifference.'days'));
 
-        $scenes = $db->simple_select('threads t join ' . TABLE_PREFIX . 'forums f on f.fid = t.fid', 't.tid, t.partners, t.subject, t.lastposteruid, t.lastpost', "find_in_set($inplayID, f.parentlist)");
+        $scenes = $db->simple_select('threads t join ' . TABLE_PREFIX . 'forums f on f.fid = t.fid', 't.tid, t.partners, t.subject, t.lastposteruid, t.lastpost', "find_in_set($inplayID, f.parentlist)", array("order_by" => "lastpost","order_dir" => 'ASC'));
         while($scene = $db->fetch_array($scenes)){
             if($date->getTimestamp() > $scene['lastpost']){
                 $nextInRow = '';
