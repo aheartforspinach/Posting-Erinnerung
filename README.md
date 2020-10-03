@@ -28,13 +28,13 @@ Man hat zwei Möglichkeiten User zu informieren:
 
 ## Vorschaubilder
 __Einstellungen des Posting-Erinnerung-Plugin__
-![Posting-Erinnerung Einstellungen](https://aheartforspinach/upload/plugins/postingreminder_settings.png)
+![Posting-Erinnerung Einstellungen](https://aheartforspinach.de/upload/plugins/postingreminder_settings.png)
 
 __Admin-Tool für inaktive Szenen__
-![Posting-Erinnerung Admin-Tool](https://aheartforspinach/upload/plugins/postingreminder_admin.png)
+![Posting-Erinnerung Admin-Tool](https://aheartforspinach.de/upload/plugins/postingreminder_admin.png)
 
 __Übersichtsseite__
-![Posting-Erinnerung Übersichtsseite](https://aheartforspinach/upload/plugins/postingreminder_page.png)
+![Posting-Erinnerung Übersichtsseite](https://aheartforspinach.de/upload/plugins/postingreminder_page.png)
 
 __Übersicht für den Header/Footer__
-![Posting-Erinnerung Übersicht](https://aheartforspinach/upload/plugins/postingreminder_overview.png)
+![Posting-Erinnerung Übersicht](https://aheartforspinach.de/upload/plugins/postingreminder_overview.png)
