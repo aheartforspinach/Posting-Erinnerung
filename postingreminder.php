@@ -7,14 +7,17 @@ add_breadcrumb("Posting-Erinnerung", "postingreminder.php");
 global $db, $templates, $mybb, $lang;
 
 //kein Zutritt für Gäste
-if ($mybb->user['uid'] == 0) {
-    error_no_permission();
-}
+if ($mybb->user['uid'] == 0) error_no_permission();
 
 $prHandler = new postingreminderHandler();
 $lang->load('postingreminder');
 $dayDifference = intval($mybb->settings['postingreminder_day']);
 $characterOpenScenes = '';
+
+// unseen banner for x days
+if ($_GET['seen'] == 1) {
+    if($prHandler->setUnseenBanner($mybb->user['uid'])) redirect('postingreminder.php', $lang->postingreminder_hideBanner_success);
+}
 
 $lang->postingreminder_explanation = $lang->sprintf($lang->postingreminder_explanation, $dayDifference);
 $allCharacters = $prHandler->getAllCharacters($mybb->user['uid']);
@@ -33,9 +36,7 @@ foreach ($allCharacters as $character) {
     }
 }
 
-if($characterOpenScenes == ''){
-    $characterOpenScenes = '<center>'. $lang->postingreminder_noOpenScenes .'</center>';
-}
+if($characterOpenScenes == '') $characterOpenScenes = '<center>'. $lang->postingreminder_noOpenScenes .'</center>';
 
 eval("\$page = \"" . $templates->get("postingreminder") . "\";");
 output_page($page);
