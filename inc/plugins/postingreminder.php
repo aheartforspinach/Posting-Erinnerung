@@ -60,7 +60,7 @@ function postingreminder_install()
             'disporder' => 4
         ),'postingreminder_banner' => array(
             'title' => 'Banner Erinnerung',
-            'description' => 'Nach wie vielen Tagen soll der Banner dem User wieder angezeigt werden? (-1  = nie wieder)',
+            'description' => 'Nach wie vielen Tagen soll der Banner dem User wieder angezeigt werden?',
             'optionscode' => 'numeric',
             'value' => '7', // Default
             'disporder' => 5
