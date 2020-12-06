@@ -1,4 +1,4 @@
-# Posting-Erinnerung
+# Posting-Erinnerung 1.0
 Das Plugin erinnert alle User an inaktive Szenen. Szenen gelten als inaktiv, wenn dort seit länger als x Tagen nicht gepostet wurde. Die Frist von x Tagen lässt sich im AdminCP einstellen. User können entweder über einen Banner informiert werden oder über eine Box in welcher die Szenen dargestellt sind.
 Zudem können sich Admins eine Liste an allen inaktiven Szene ausgeben lassen.
 
