@@ -9,7 +9,7 @@ __Änderungen zu Version 1.0__
 * Unterstützung des Inplaytracker 3.0
 * Verschiebung der Templates vom globalen in den stylespezifischen
 
-Wenn ihr das Posting-Erinnerung Plugin 1.0 verwendet, ladet den Quellcode herunter und bei euch wieder hoch __ohne__ das Plugin zu deaktivieren oder zu deinstallieren. Falls ihr nicht auf dem aktuellen Stand wart (euch fehlt dann in der Tabelle users das Feld `postingreminder_hide_alert`), müsst ihr im AdminCP unter Tools und Verwaltung das Update durchführen
+Wenn ihr das Posting-Erinnerung Plugin 1.0 verwendet, ladet den Quellcode herunter und bei euch wieder hoch und deinstalliert das Plugin, um es dann neu zu installieren. Falls ihr Änderungen an den Templates vorgenommen habt, solltet ihr diese vorher sichern.
 
 ## Funktionen
 * Anzeige von inaktiven Szenen (Frist setzbar im AdminCP)
