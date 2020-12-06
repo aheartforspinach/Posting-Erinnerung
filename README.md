@@ -1,6 +1,15 @@
-# Posting-Erinnerung 1.0
+# Posting-Erinnerung 2.0
 Das Plugin erinnert alle User an inaktive Szenen. Szenen gelten als inaktiv, wenn dort seit länger als x Tagen nicht gepostet wurde. Die Frist von x Tagen lässt sich im AdminCP einstellen. User können entweder über einen Banner informiert werden oder über eine Box in welcher die Szenen dargestellt sind.
 Zudem können sich Admins eine Liste an allen inaktiven Szene ausgeben lassen.
+
+## Update
+Dieser Branch unterstützt den Inplaytracker 3.0 von Jule. Falls ihr den Tracker in der Version 2.0 verwendet, müsst ihr [diesen Code](https://github.com/aheartforspinach/Posting-Erinnerung/tree/version1) herunterladen
+
+__Änderungen zu Version 1.0__
+* Unterstützung des Inplaytracker 3.0
+* Verschiebung der Templates vom globalen in den stylespezifischen
+
+Wenn ihr das Posting-Erinnerung Plugin 1.0 verwendet, ladet den Quellcode herunter und bei euch wieder hoch __ohne__ das Plugin zu deaktivieren oder zu deinstallieren. Falls ihr nicht auf dem aktuellen Stand wart (euch fehlt dann in der Tabelle users das Feld `postingreminder_hide_alert`), müsst ihr im AdminCP unter Tools und Verwaltung das Update durchführen
 
 ## Funktionen
 * Anzeige von inaktiven Szenen (Frist setzbar im AdminCP)
@@ -10,7 +19,7 @@ Zudem können sich Admins eine Liste an allen inaktiven Szene ausgeben lassen.
 
 ## Voraussetzungen
 * [Enhanced Account Switcher](http://doylecc.altervista.org/bb/downloads.php?dlid=26&cat=2) muss installiert sein 
-* [Inplaytracker 2.0](https://github.com/its-sparks-fly/Inplaytracker-2.0) muss installiert sein 
+* [Inplaytracker 3.0] muss installiert sein 
 
 ## Template-Änderungen
 __Neue globale Templates:__
