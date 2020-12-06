@@ -11,7 +11,7 @@ function postingreminder_info()
         "description"    => "Erinnert User daran in einer Szene zu posten und gibt dem Team eine List an inaktiven Szenen",
         "author"        => "aheartforspinach",
         "authorsite"    => "https://github.com/aheartforspinach",
-        "version"        => "1.0",
+        "version"        => "2.0",
         "compatibility" => "18*"
     );
 }
@@ -74,6 +74,13 @@ function postingreminder_install()
         $db->insert_query('settings', $setting);
     }
 
+    $templategroup = array(
+        'prefix' => 'postingreminder',
+        'title' => $db->escape_string('Posting-Erinnerung'),
+    );
+
+    $db->insert_query("templategroups", $templategroup);
+
     //Template postingreminder bauen
     $insert_array = array(
         'title'        => 'postingreminder',
@@ -97,7 +104,7 @@ function postingreminder_install()
         </body>
         
         </html>'),
-        'sid'        => '-1',
+        'sid'        => '-2',
         'version'    => '',
         'dateline'    => TIME_NOW
     );
@@ -105,14 +112,14 @@ function postingreminder_install()
 
     //Template postingreminderCharacters bauen
     $insert_array = array(
-        'title'        => 'postingreminderCharacters',
+        'title'        => 'postingreminder_characters',
         'template'    => $db->escape_string('<table width="100%">
         <tr>
             <td class="thead" colspan="2">{$characterName}</td>
         </tr>
          {$openScenes}
         </table>'),
-        'sid'        => '-1',
+        'sid'        => '-2',
         'version'    => '',
         'dateline'    => TIME_NOW
     );
@@ -120,12 +127,12 @@ function postingreminder_install()
 
     //Template postingreminderCharacters bauen
     $insert_array = array(
-        'title'        => 'postingreminderScenes',
+        'title'        => 'postingreminder_scenes',
         'template'    => $db->escape_string('<tr>
         <td width="70%">{$sceneLink}</td> 
         <td width="30%">{$lastPost}</td>
     </tr>'),
-        'sid'        => '-1',
+        'sid'        => '-2',
         'version'    => '',
         'dateline'    => TIME_NOW
     );
@@ -133,9 +140,9 @@ function postingreminder_install()
 
     //Template postingreminderHeader bauen
     $insert_array = array(
-        'title'        => 'postingreminderHeader',
+        'title'        => 'postingreminder_header',
         'template'    => $db->escape_string('<div class="red_alert">{$lang->postingreminder_inactiveScenes}<a href="/postingreminder.php?seen=1" title="Nicht mehr anzeigen"><span style="font-size: 14px;margin-top: -2px;float:right;">✕</span></a></div>'),
-        'sid'        => '-1',
+        'sid'        => '-2',
         'version'    => '',
         'dateline'    => TIME_NOW
     );
@@ -157,6 +164,7 @@ function postingreminder_is_installed()
 function postingreminder_uninstall()
 {
     global $db;
+    if($db->field_exists('postingreminder_hide_alert', 'users')) $db->drop_column('users', 'postingreminder_hide_alert');
     $db->delete_query('settings', "name LIKE 'postingreminder_%'");
     $db->delete_query('settinggroups', "name = 'postingreminder'");
     $db->delete_query("templates", "title LIKE 'postingreminder%'");
@@ -169,18 +177,6 @@ function postingreminder_activate()
 
 function postingreminder_deactivate()
 {
-}
-
-//Benachrichtung bei inaktiver Szene
-$plugins->add_hook('global_intermediate', 'postingreminder_alert');
-function postingreminder_alert()
-{
-    global $mybb, $templates, $postingreminderAlert;
-
-    $today = new DateTime(date("Y-m-d", time())); //heute
-    $timeForApplication = intval($mybb->settings['postingreminder__time']);
-
-    eval("\$postingreminderAlert .= \"" . $templates->get("postingreminderAlert") . "\";");
 }
 
 //Übersicht über inaktive Szenen
@@ -205,11 +201,11 @@ function postingreminder_notifications()
                 $thread = get_thread($scene);
                 $sceneLink = '<a href="https://test.beforestorm.de/test/showthread.php?tid=' . $thread['tid'] . '">' . $thread['subject'] . '</a>';
                 $lastPost = date('d.m.Y', $thread['lastpost']);
-                eval("\$openScenes .= \"" . $templates->get("postingreminderScenes") . "\";");
+                eval("\$openScenes .= \"" . $templates->get("postingreminder_scenes") . "\";");
             }
             if ($openScenes == '') $characterOpenScenes .= $lang->postingreminder_noOpenScenes;
-            eval("\$characterOpenScenes .= \"" . $templates->get("postingreminderCharacters") . "\";");
-            eval("\$header_postingreminder = \"" . $templates->get("postingreminderHeader") . "\";");
+            eval("\$characterOpenScenes .= \"" . $templates->get("postingreminder_characters") . "\";");
+            eval("\$header_postingreminder = \"" . $templates->get("postingreminder_header") . "\";");
         }
     }
 

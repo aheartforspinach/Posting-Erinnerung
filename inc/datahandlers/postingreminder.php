@@ -58,11 +58,11 @@ class postingreminderHandler
         $dayDifference = intval($mybb->settings['postingreminder_day']);
         $date = new DateTime(date("Y-m-d", time())); // heute
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
-
-        $scenes = $db->simple_select('threads', 'tid, partners, lastposteruid, lastpost', 'find_in_set(fid, "' . $inplayIDs . '")', array('order_by' => 'lastpost', 'order_dir' => 'ASC'));
+        
+        $scenes = $db->simple_select('threads', 'tid, lastposteruid, lastpost', 'find_in_set(fid, "' . $inplayIDs . '")', array('order_by' => 'lastpost', 'order_dir' => 'ASC'));
         while ($scene = $db->fetch_array($scenes)) {
             if ($date->getTimestamp() > $scene['lastpost'])
-                $returnArray[$scene['tid']] = $this->getNextInRow(explode(',', $scene['partners']), $scene['lastposteruid']);
+                $returnArray[$scene['tid']] = $this->getNextInRow($scene['tid']);
         }
 
         return $returnArray;
@@ -92,20 +92,12 @@ class postingreminderHandler
      *
      * @return int with uid form user who must post next
      */
-    private function getNextInRow($participants, $lastPosterUid)
+    private function getNextInRow($tid)
     {
-        $ctr = 0;
-        $nextInRow = '';
-        foreach ($participants as $participant) {
-            if ($participant == $lastPosterUid) {
-                if ($participants[$ctr + 1] == null) {
-                    $nextInRow = $participants[0];
-                } else {
-                    $nextInRow = $participants[$ctr + 1];
-                }
-            }
-            $ctr++;
-        }
-        return $nextInRow;
+        global $db;
+        $lastPosterUid = get_thread($tid)['lastposteruid'];
+        $next_id = $db->fetch_array($db->simple_select('ipt_scenes_partners', 'spid', 'tid = '. $tid . ' and uid = '. $lastPosterUid))['spid'] ++;
+        if(empty($next_id)) return 0;
+        return $db->fetch_array($db->simple_select('ipt_scenes_partners', 'uid', 'tid = '. $tid . ' and spid = '. $next_id))['uid'];
     }
 }

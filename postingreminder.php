@@ -30,9 +30,9 @@ foreach ($allCharacters as $character) {
             $thread = get_thread($scene);
             $sceneLink = '<a href="/showthread.php?tid='. $thread['tid'] .'">'. $thread['subject'] .'</a>';
             $lastPost = $lang->postingreminder_lastDate . date('d.m.Y', $thread['lastpost']);
-            eval("\$openScenes .= \"" . $templates->get("postingreminderScenes") . "\";");
+            eval("\$openScenes .= \"" . $templates->get("postingreminder_scenes") . "\";");
         }
-        eval("\$characterOpenScenes .= \"" . $templates->get("postingreminderCharacters") . "\";");
+        eval("\$characterOpenScenes .= \"" . $templates->get("postingreminder_characters") . "\";");
     }
 }
 
