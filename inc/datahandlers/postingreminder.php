@@ -17,12 +17,9 @@ class postingreminderHandler
         $user = get_user($uid);
         $mainUid = $user['as_uid'] != 0 ? $user['as_uid'] : $uid;
 
-        array_push($returnArray, $mainUid);
-        $query = $db->simple_select('users', 'uid', 'as_uid = ' . $mainUid);
-        while ($result = $db->fetch_array($query)) {
-            array_push($returnArray, (int)$result['uid']);
-        }
-        arsort($returnArray);
+        $query = $db->simple_select('users', 'uid', 'as_uid = ' . $mainUid . ' or uid = ' . $mainUid, array('order_by' => 'username', 'order_dir' => 'ASC'));
+        while ($result = $db->fetch_array($query)) array_push($returnArray, (int)$result['uid']);
+
         return $returnArray;
     }
 
@@ -40,7 +37,7 @@ class postingreminderHandler
         if (in_array($user['usergroup'], $groups)) return array();
 
         foreach ($this->getAllInactiveScenes() as $tid => $nextInRow) {
-            if ($nextInRow != $uid || $user['fid'. $ice] == 'Ja') continue;
+            if ($nextInRow != $uid || $user['fid' . $ice] == 'Ja') continue;
             array_push($returnArray, $tid);
         }
         return $returnArray;
@@ -58,12 +55,9 @@ class postingreminderHandler
         $dayDifference = intval($mybb->settings['postingreminder_day']);
         $date = new DateTime(date("Y-m-d", time())); // heute
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
-        
-        $scenes = $db->simple_select('threads', 'tid, lastposteruid, lastpost', 'find_in_set(fid, "' . $inplayIDs . '")', array('order_by' => 'lastpost', 'order_dir' => 'ASC'));
-        while ($scene = $db->fetch_array($scenes)) {
-            if ($date->getTimestamp() > $scene['lastpost'])
-                $returnArray[$scene['tid']] = $this->getNextInRow($scene['tid']);
-        }
+
+        $scenes = $db->simple_select('ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid', 't.tid, lastposteruid, lastpost', 'visible = 1 and ' . $date->getTimestamp() . ' > lastpost');
+        while ($scene = $db->fetch_array($scenes)) $returnArray[$scene['tid']] = $this->getNextInRow($scene['tid']);
 
         return $returnArray;
     }
@@ -81,10 +75,11 @@ class postingreminderHandler
      *
      * @return boolean true -> hide; false -> don't hide
      */
-    public function hideBanner($uid) {
+    public function hideBanner($uid)
+    {
         global $db;
         $today = date('Y-m-d', time());
-        $expirationDate = $db->fetch_array($db->simple_select('users', 'postingreminder_hide_alert', 'uid = '. $uid))['postingreminder_hide_alert'];
+        $expirationDate = $db->fetch_array($db->simple_select('users', 'postingreminder_hide_alert', 'uid = ' . $uid))['postingreminder_hide_alert'];
         return $today <= $expirationDate ? true : false;
     }
 
@@ -96,8 +91,11 @@ class postingreminderHandler
     {
         global $db;
         $lastPosterUid = get_thread($tid)['lastposteruid'];
-        $next_id = $db->fetch_array($db->simple_select('ipt_scenes_partners', 'spid', 'tid = '. $tid . ' and uid = '. $lastPosterUid))['spid'] ++;
-        if(empty($next_id)) return 0;
-        return $db->fetch_array($db->simple_select('ipt_scenes_partners', 'uid', 'tid = '. $tid . ' and spid = '. $next_id))['uid'];
+        $next = $db->fetch_array($db->simple_select('ipt_scenes_partners', 'spid', 'tid = ' . $tid . ' and uid = ' . $lastPosterUid))['spid'] + 1;
+        $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'spid = '. $next), 'uid');
+        if (empty($next_uid)) {
+            $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'tid = '. $tid, ["order_by" => 'spid', "order_dir" => 'ASC', 'limit' => 1]), "uid");
+        }
+        return $next_uid;
     }
 }
