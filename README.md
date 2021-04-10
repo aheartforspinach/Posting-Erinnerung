@@ -19,7 +19,7 @@ Wenn ihr das Posting-Erinnerung Plugin 1.0 verwendet, ladet den Quellcode herunt
 
 ## Voraussetzungen
 * [Enhanced Account Switcher](http://doylecc.altervista.org/bb/downloads.php?dlid=26&cat=2) muss installiert sein 
-* [Inplaytracker 3.0] muss installiert sein 
+* [Inplaytracker 3.0](https://github.com/ItsSparksFly/mybb-inplaytracker/tree/development) muss installiert sein
 
 ## Template-Änderungen
 __Neue globale Templates:__
