@@ -36,7 +36,8 @@ class postingreminderHandler
         $user = get_user($uid);
         if (in_array($user['usergroup'], $groups)) return array();
 
-        foreach ($this->getAllInactiveScenes() as $tid => $nextInRow) {
+        $scenes = $this->getAllInactiveScenes();
+        foreach ($scenes as $tid => $nextInRow) {
             if ($nextInRow != $uid || $user['fid' . $ice] == 'Ja') continue;
             array_push($returnArray, $tid);
         }
@@ -59,9 +60,12 @@ class postingreminderHandler
         $scenes = $db->simple_select(
             'ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid',
             't.tid, lastposteruid, lastpost',
-            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost and find_in_set(fid, "' . $inplayIDs . '")'
+            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost and fid in ('.$inplayIDs.')'
         );
-        while ($scene = $db->fetch_array($scenes)) $returnArray[$scene['tid']] = $this->getNextInRow($scene['tid']);
+
+        while ($scene = $db->fetch_array($scenes)) {
+            $returnArray[$scene['tid']] = $this->getNextInRow($scene['tid']);
+        }
 
         return $returnArray;
     }
@@ -96,7 +100,7 @@ class postingreminderHandler
         global $db;
         $lastPosterUid = get_thread($tid)['lastposteruid'];
         $next = $db->fetch_array($db->simple_select('ipt_scenes_partners', 'spid', 'tid = ' . $tid . ' and uid = ' . $lastPosterUid))['spid'] + 1;
-        $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'spid = ' . $next), 'uid');
+        $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'spid = ' . $next . ' and tid = '. $tid), 'uid');
         if (empty($next_uid)) {
             $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'tid = ' . $tid, ["order_by" => 'spid', "order_dir" => 'ASC', 'limit' => 1]), "uid");
         }
