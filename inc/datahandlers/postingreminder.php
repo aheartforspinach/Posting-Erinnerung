@@ -28,14 +28,15 @@ class PostingreminderHandler
         if (empty($uids)) return [];
 
         $dayDifference = intval($mybb->settings['postingreminder_day']);
+        $inplay = $mybb->settings['ipt_inplay'];
         $date = new DateTime(date("Y-m-d", time()));
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
 
         $scenes = $db->simple_select(
             'ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid',
             't.tid, uid, lastpost',
-            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost',
-            ['order_by' => 'lastpost', 'order_dir' => 'desc']
+            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost and fid in ('.$inplay.')',
+            ['order_by' => 'lastpost', 'order_dir' => 'asc']
         );
 
         $inactiveScenes = [];
@@ -70,12 +71,13 @@ class PostingreminderHandler
         $dayDifference = intval($mybb->settings['postingreminder_day']);
         $date = new DateTime(date("Y-m-d", time()));
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
+        $inplay = $mybb->settings['ipt_inplay'];
 
         $scenes = $db->simple_select(
-            'ipt_scenes s join ' . TABLE_PREFIX . 'posts p on s.tid = p.tid',
-            'p.tid, uid, dateline',
-            'visible = 1 and ' . $date->getTimestamp() . ' > dateline',
-            ['order_by' => 'dateline', 'order_dir' => 'asc']
+            'ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid',
+            't.tid, uid, lastpost',
+            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost and fid in ('.$inplay.')',
+            ['order_by' => 'lastpost', 'order_dir' => 'asc']
         );
 
         while ($scene = $db->fetch_array($scenes)) {
