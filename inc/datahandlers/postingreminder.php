@@ -8,7 +8,7 @@ class postingreminderHandler
 {
     /**
      *
-     * @return array with all UID from one User
+     * @return array with all UIDs from one user
      */
     public function getAllCharacters($uid)
     {
@@ -25,7 +25,7 @@ class postingreminderHandler
 
     /**
      *
-     * @return array with all inactive Scenes from one User
+     * @return array with all inactive scenes from one user
      */
     public function getInactiveScenesFrom($uid)
     {
@@ -58,9 +58,10 @@ class postingreminderHandler
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
 
         $scenes = $db->simple_select(
-            'ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid',
-            't.tid, lastposteruid, lastpost',
-            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost and fid in ('.$inplayIDs.')'
+            'ipt_scenes s join ' . TABLE_PREFIX . 'posts p on s.tid = p.tid',
+            'p.tid, uid, dateline',
+            'visible = 1 and ' . $date->getTimestamp() . ' > dateline and fid in ('.$inplayIDs.')',
+            ['order_by' => 'dateline', 'order_dir' => 'asc']
         );
 
         while ($scene = $db->fetch_array($scenes)) {

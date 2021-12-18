@@ -11,7 +11,7 @@ function postingreminder_info()
         "description"    => "Erinnert User daran in einer Szene zu posten und gibt dem Team eine List an inaktiven Szenen",
         "author"        => "aheartforspinach",
         "authorsite"    => "https://github.com/aheartforspinach",
-        "version"        => "2.0",
+        "version"        => "2.0.1",
         "compatibility" => "18*"
     );
 }
