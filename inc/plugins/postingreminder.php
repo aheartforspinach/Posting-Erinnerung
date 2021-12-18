@@ -11,7 +11,7 @@ function postingreminder_info()
         "description"    => "Erinnert User daran in einer Szene zu posten und gibt dem Team eine List an inaktiven Szenen",
         "author"        => "aheartforspinach",
         "authorsite"    => "https://github.com/aheartforspinach",
-        "version"        => "2.0.1",
+        "version"        => "2.0.2",
         "compatibility" => "18*"
     );
 }
@@ -36,34 +36,27 @@ function postingreminder_install()
             'title' => 'Erinnerung nach x Tagen',
             'description' => 'Nach wie vielen Tagen soll ein User erinnert werden?',
             'optionscode' => 'numeric',
-            'value' => '30',
+            'value' => 30,
             'disporder' => 1
-        ),
-        'postingreminder_inplayID' => array(
-            'title' => 'Inplay-ID',
-            'description' => 'Wähle deine Inplay-Bereiche aus',
-            'optionscode' => 'forumselect',
-            'value' => '0',
-            'disporder' => 2
         ),
         'postingreminder_groups'    => array(
             'title'            => 'Ausgeschlossene Gruppen',
             'description'    => 'Welche Gruppen (primäre Nutzergruppe) sollen ausgeschlossen werden?',
             'optionscode'    => ($mybb->version_code >= 1800 ? 'groupselect' : 'text'),
             'value'            =>    '',
-            'disporder' => 3
+            'disporder' => 2
         ),'postingreminder_ice' => array(
             'title' => 'Eiszeit Profilfeld',
             'description' => 'Wie lautet die FID von deinem Eiszeit Profilfeld? (-1 = wird nicht genutzt)',
             'optionscode' => 'numeric',
-            'value' => '-1', // Default
-            'disporder' => 4
+            'value' => -1, 
+            'disporder' => 3
         ),'postingreminder_banner' => array(
             'title' => 'Banner Erinnerung',
             'description' => 'Nach wie vielen Tagen soll der Banner dem User wieder angezeigt werden?',
             'optionscode' => 'numeric',
-            'value' => '7', // Default
-            'disporder' => 5
+            'value' => 7, 
+            'disporder' => 4
         )
     );
 

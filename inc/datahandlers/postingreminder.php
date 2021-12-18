@@ -30,16 +30,16 @@ class postingreminderHandler
     public function getInactiveScenesFrom($uid)
     {
         global $mybb;
-        $returnArray = array();
+        $returnArray = [];
         $groups = explode(',', $mybb->settings['postingreminder_groups']);
         $ice = intval($mybb->settings['postingreminder_ice']);
         $user = get_user($uid);
-        if (in_array($user['usergroup'], $groups)) return array();
+        if (in_array($user['usergroup'], $groups)) return [];
 
         $scenes = $this->getAllInactiveScenes();
         foreach ($scenes as $tid => $nextInRow) {
             if ($nextInRow != $uid || $user['fid' . $ice] == 'Ja') continue;
-            array_push($returnArray, $tid);
+            $returnArray[] = $tid;
         }
         return $returnArray;
     }
@@ -52,15 +52,14 @@ class postingreminderHandler
     {
         global $db, $mybb;
         $returnArray = array();
-        $inplayIDs = $mybb->settings['postingreminder_inplayID'];
         $dayDifference = intval($mybb->settings['postingreminder_day']);
-        $date = new DateTime(date("Y-m-d", time())); // heute
+        $date = new DateTime(date("Y-m-d", time()));
         date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
 
         $scenes = $db->simple_select(
             'ipt_scenes s join ' . TABLE_PREFIX . 'posts p on s.tid = p.tid',
             'p.tid, uid, dateline',
-            'visible = 1 and ' . $date->getTimestamp() . ' > dateline and fid in ('.$inplayIDs.')',
+            'visible = 1 and ' . $date->getTimestamp() . ' > dateline',
             ['order_by' => 'dateline', 'order_dir' => 'asc']
         );
 
