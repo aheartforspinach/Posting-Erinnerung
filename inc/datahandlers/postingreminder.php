@@ -4,44 +4,59 @@ if (!defined("IN_MYBB")) die("Direct initialization of this file is not allowed.
 
 global $plugins;
 
-class postingreminderHandler
+class PostingreminderHandler
 {
-    /**
-     *
-     * @return array with all UIDs from one user
-     */
-    public function getAllCharacters($uid)
-    {
-        global $db;
-        $returnArray = array();
-        $user = get_user($uid);
-        $mainUid = $user['as_uid'] != 0 ? $user['as_uid'] : $uid;
-
-        $query = $db->simple_select('users', 'uid', 'as_uid = ' . $mainUid . ' or uid = ' . $mainUid, array('order_by' => 'username', 'order_dir' => 'ASC'));
-        while ($result = $db->fetch_array($query)) array_push($returnArray, (int)$result['uid']);
-
-        return $returnArray;
-    }
-
     /**
      *
      * @return array with all inactive scenes from one user
      */
-    public function getInactiveScenesFrom($uid)
+    public function getOwnInactiveScenes($uid)
     {
-        global $mybb;
-        $returnArray = [];
+        global $mybb, $db;
+
+        $users = $this->getOwnUids($uid);
         $groups = explode(',', $mybb->settings['postingreminder_groups']);
         $ice = intval($mybb->settings['postingreminder_ice']);
-        $user = get_user($uid);
-        if (in_array($user['usergroup'], $groups)) return [];
 
-        $scenes = $this->getAllInactiveScenes();
-        foreach ($scenes as $tid => $nextInRow) {
-            if ($nextInRow != $uid || $user['fid' . $ice] == 'Ja') continue;
-            $returnArray[] = $tid;
+        $uids = [];
+        for ($i = 0; $i < count($users); $i++) {
+            if (!in_array($users[$i]['usergroup'], $groups)) {
+                $uids[] = $users[$i]['uid'];
+            }
         }
-        return $returnArray;
+
+        if (empty($uids)) return [];
+
+        $dayDifference = intval($mybb->settings['postingreminder_day']);
+        $date = new DateTime(date("Y-m-d", time()));
+        date_sub($date, date_interval_create_from_date_string($dayDifference . 'days'));
+
+        $scenes = $db->simple_select(
+            'ipt_scenes s join ' . TABLE_PREFIX . 'threads t on s.tid = t.tid',
+            't.tid, uid, lastpost',
+            'visible = 1 and ' . $date->getTimestamp() . ' > lastpost',
+            ['order_by' => 'lastpost', 'order_dir' => 'desc']
+        );
+
+        $inactiveScenes = [];
+        while ($scene = $db->fetch_array($scenes)) {
+            foreach ($uids as $uid) {
+                $nextInRow = $this->getNextInRow($scene['tid']);
+                $iceField = get_user($nextInRow)['fid' . $ice];
+                if ($nextInRow != $uid || $iceField == 'Ja') continue;
+    
+                if ($inactiveScenes[$uid] == null) {
+                    $inactiveScenes[$uid][] = $scene['tid'];
+                    continue;
+                }
+            
+                if (!in_array($scene['tid'], $inactiveScenes[$uid])) {
+                    $inactiveScenes[$uid][] = $scene['tid'];
+                }
+            }
+        }
+
+        return $inactiveScenes;
     }
 
     /**
@@ -76,7 +91,12 @@ class postingreminderHandler
         $expirationDate = new DateTime(date("Y-m-d", time())); // heute
         $expirationDate->add(date_interval_create_from_date_string(intval($mybb->settings['postingreminder_banner']) . 'days'));
         $update = array('postingreminder_hide_alert' => $expirationDate->format('Y-m-d'));
-        return $db->update_query('users', $update, 'find_in_set(uid, "' . implode(",", $this->getAllCharacters($uid)) . '")');
+        $users = $this->getOwnUids($uid);
+        $uids = [];
+        foreach ($users as $user) {
+            $uids[] = $user['uid'];
+        }
+        $db->update_query('users', $update, 'uid in (' . implode(",", $uids) . ')');
     }
 
     /**
@@ -105,5 +125,27 @@ class postingreminderHandler
             $next_uid = $db->fetch_field($db->simple_select('ipt_scenes_partners', 'uid', 'tid = ' . $tid, ["order_by" => 'spid', "order_dir" => 'ASC', 'limit' => 1]), "uid");
         }
         return $next_uid;
+    }
+
+    /**
+     *
+     * @return array with all UIDs from one user
+     */
+    private function getOwnUids($uid)
+    {
+        global $db;
+        $uids = [];
+        $user = get_user($uid);
+        $mainUid = $user['as_uid'] != 0 ? $user['as_uid'] : $uid;
+
+        $query = $db->simple_select('users', 'uid, usergroup', 'as_uid = ' . $mainUid . ' or uid = ' . $mainUid, array('order_by' => 'username', 'order_dir' => 'ASC'));
+        while ($result = $db->fetch_array($query)) {
+            $uids[] = [
+                'uid' => (int)$result['uid'],
+                'usergroup' => (int)$result['usergroup']
+            ];
+        }
+
+        return $uids;
     }
 }

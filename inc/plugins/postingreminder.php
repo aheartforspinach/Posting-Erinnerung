@@ -11,7 +11,7 @@ function postingreminder_info()
         "description"    => "Erinnert User daran in einer Szene zu posten und gibt dem Team eine List an inaktiven Szenen",
         "author"        => "aheartforspinach",
         "authorsite"    => "https://github.com/aheartforspinach",
-        "version"        => "2.0.2",
+        "version"        => "2.1",
         "compatibility" => "18*"
     );
 }
@@ -38,8 +38,7 @@ function postingreminder_install()
             'optionscode' => 'numeric',
             'value' => 30,
             'disporder' => 1
-        ),
-        'postingreminder_groups'    => array(
+        ),'postingreminder_groups'    => array(
             'title'            => 'Ausgeschlossene Gruppen',
             'description'    => 'Welche Gruppen (primäre Nutzergruppe) sollen ausgeschlossen werden?',
             'optionscode'    => ($mybb->version_code >= 1800 ? 'groupselect' : 'text'),
@@ -134,7 +133,22 @@ function postingreminder_install()
     //Template postingreminderHeader bauen
     $insert_array = array(
         'title'        => 'postingreminder_header',
-        'template'    => $db->escape_string('<div class="red_alert">{$lang->postingreminder_inactiveScenes}<a href="/postingreminder.php?seen=1" title="Nicht mehr anzeigen"><span style="font-size: 14px;margin-top: -2px;float:right;">✕</span></a></div>'),
+        'template'    => $db->escape_string('<div class="red_alert">
+        {$lang->postingreminder_inactiveScenes} 
+        <span id="postingreminder-close" style="font-size: 14px;margin-top: -2px;float:right;cursor: pointer;" onclick="hidePostingReminderBanner()">✕</span>
+    </div>
+    
+    <script>
+        function hidePostingReminderBanner() {
+            let formData = new FormData();
+            formData.append(\'seen\', \'1\');
+            fetch(\'postingreminder.php\', {
+                method: \'POST\',
+                body: formData
+            });
+            document.querySelector(\'#postingreminder-close\').closest(\'.red_alert\').style.display = \'none\';
+        }
+    </script>'),
         'sid'        => '-2',
         'version'    => '',
         'dateline'    => TIME_NOW
@@ -184,22 +198,19 @@ function postingreminder_notifications()
     if ($mybb->user['uid'] == 0 || $prHandler->hideBanner($mybb->user['uid'])) return;
 
     $characterOpenScenes = $lang->sprintf($lang->postingreminder_explanation, intval($mybb->settings['postingreminder_day']));
-    $allCharacters = $prHandler->getAllCharacters($mybb->user['uid']);
-    foreach ($allCharacters as $character) {
-        $scenes = $prHandler->getInactiveScenesFrom($character);
-        if (!empty($scenes)) {
-            $openScenes = '';
-            $characterName = get_user($character)['username'];
-            foreach ($scenes as $scene) {
-                $thread = get_thread($scene);
-                $sceneLink = '<a href="https://test.beforestorm.de/test/showthread.php?tid=' . $thread['tid'] . '">' . $thread['subject'] . '</a>';
-                $lastPost = date('d.m.Y', $thread['lastpost']);
-                eval("\$openScenes .= \"" . $templates->get("postingreminder_scenes") . "\";");
-            }
-            if ($openScenes == '') $characterOpenScenes .= $lang->postingreminder_noOpenScenes;
-            eval("\$characterOpenScenes .= \"" . $templates->get("postingreminder_characters") . "\";");
-            eval("\$header_postingreminder = \"" . $templates->get("postingreminder_header") . "\";");
+    $inactiveScenes = $prHandler->getOwnInactiveScenes($mybb->user['uid']);
+    foreach ($inactiveScenes as $uid => $scenes) {
+        $openScenes = '';
+        $characterName = get_user($uid)['username'];
+        foreach($scenes as $scene){
+            $thread = get_thread($scene);
+            $sceneLink = '<a href="/showthread.php?tid='. $thread['tid'] .'">'. $thread['subject'] .'</a>';
+            $lastPost = $lang->postingreminder_lastDate . date('d.m.Y', $thread['lastpost']);
+            eval("\$openScenes .= \"" . $templates->get("postingreminder_scenes") . "\";");
         }
+        if ($openScenes == '') $characterOpenScenes .= $lang->postingreminder_noOpenScenes;
+        eval("\$characterOpenScenes .= \"" . $templates->get("postingreminder_characters") . "\";");
+        eval("\$header_postingreminder = \"" . $templates->get("postingreminder_header") . "\";");
     }
 
     if ($characterOpenScenes == $lang->sprintf($lang->postingreminder_explanation, intval($mybb->settings['postingreminder_day']))) {
